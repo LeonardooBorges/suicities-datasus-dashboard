@@ -8,10 +8,10 @@ import numpy as np
 import altair as alt
 import geopandas as gpd
 import json
+import zipfile
+import os
 
 from EDA import dictionaries as dictionaries
-
-root = "../"
 
 # import dask.dataframe
 #suicide_df = dask.dataframe.read_csv("suicide.csv")
@@ -95,6 +95,11 @@ def plot_dtobito():
     st.altair_chart((graph).configure_view(strokeOpacity=0).configure_title(fontSize=12).properties(width=700, height=410))
 
 def plot_codmunres():
+    if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
+        print('Unzipping BRMUE250GC_SIR files')
+        with zipfile.ZipFile('Maps/br_municipios.zip', 'r') as zip_ref:
+            zip_ref.extractall('Maps/')
+
     gdf = gpd.read_file('Maps/BRMUE250GC_SIR.shp')
     
     cadmun = pd.read_csv('./EDA/CADMUN.csv')

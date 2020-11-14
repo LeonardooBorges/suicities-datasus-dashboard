@@ -7,11 +7,18 @@ from numpy import load, save
 from libpysal.weights import WSP
 from libpysal.weights.contiguity import Queen
 from esda.moran import Moran_Local_BV, Moran
+import zipfile
+import os
 
 weights = None
 mapper = None
 
 def get_municipalities_shape():
+  if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
+    print('Unzipping BRMUE250GC_SIR files')
+    with zipfile.ZipFile('Maps/br_municipios.zip', 'r') as zip_ref:
+      zip_ref.extractall('Maps/')
+  
   return gpd.read_file('Maps/BRMUE250GC_SIR.shp')
 
 def get_muncods():
