@@ -95,12 +95,12 @@ def plot_dtobito():
     st.altair_chart((graph).configure_view(strokeOpacity=0).configure_title(fontSize=12).properties(width=700, height=410))
 
 def plot_codmunres():
-  zipFileName = 'Maps/BRMUE250GC_SIR.7z'
-  if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
-    print('Unzipping BRMUE250GC_SIR files')
-    with py7zr.SevenZipFile(zipFileName, 'r') as archive:
-      archive.extractall("Maps/")
-
+    zipFileName = 'Maps/BRMUE250GC_SIR.7z'
+    if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
+        print('Unzipping BRMUE250GC_SIR files')
+        with py7zr.SevenZipFile(zipFileName, 'r') as archive:
+            archive.extractall("Maps/")
+    
     gdf = gpd.read_file('Maps/BRMUE250GC_SIR.shp')
     
     cadmun = pd.read_csv('./EDA/CADMUN.csv')
