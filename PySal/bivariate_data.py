@@ -13,11 +13,29 @@ import os
 weights = None
 mapper = None
 
+def fixBadZipfile(zipFileName):  
+ f = open(zipFileName, 'r+b')  
+ data = f.read()  
+ pos = data.find('\x50\x4b\x05\x06') # End of central directory signature  
+ if (pos > 0):  
+     print("Trancating file at location " + str(pos + 22)+ ".")  
+     f.seek(pos + 22)   # size of 'ZIP end of central directory record' 
+     f.truncate()  
+     f.close()  
+ else:  
+     raise zipfile.BadZipFile("File is not a zip file")
+
+
 def get_municipalities_shape():
-  if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
-    print('Unzipping BRMUE250GC_SIR files')
-    with zipfile.ZipFile('Maps/br_municipios.zip', 'r') as zip_ref:
-      zip_ref.extractall('Maps/')
+  zipFileName = 'Maps/br_municipios.zip'
+  try:
+    if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
+      print('Unzipping BRMUE250GC_SIR files')
+      with zipfile.ZipFile(zipFileName, 'r') as zip_ref:
+        zip_ref.extractall('Maps/')
+  except zipfile.BadZipFile:
+    print('Trying to fix bad zip file')
+    fixBadZipfile(zipFileName)
   
   return gpd.read_file('Maps/BRMUE250GC_SIR.shp')
 
