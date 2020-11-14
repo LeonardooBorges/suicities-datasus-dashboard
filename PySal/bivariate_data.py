@@ -94,6 +94,12 @@ def moran_global(dataset):
   return moran
 
 def compute_weights():
+  zipFileName = 'PySal/data.7z'
+  if not os.path.isfile('PySal/data.npy'):
+    print('Unzipping data file')
+    with py7zr.SevenZipFile(zipFileName, 'r') as archive:
+      archive.extractall("PySal/")
+
   global weights
   path_to_data = "PySal/data.npy"
   weight_files = glob.glob(path_to_data)
