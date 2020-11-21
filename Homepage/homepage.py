@@ -20,15 +20,19 @@ def present_homepage():
         """
 
         """
-        Este Dashboard é constituído de três painéis distintos, que sumarizam dados da análise do suicídio nos municípios brasileiros:
+        Este Dashboard é constituído de quatro painéis distintos, que sumarizam dados da análise do suicídio nos municípios brasileiros:
         """
 
         """
-        - **EDA:** Análise exploratória dos dados contidos nas Declarações de Óbito do DATASUS.
+        - **Análise Exploratória de Dados:** Análise exploratória dos dados contidos nas Declarações de Óbito do DATASUS.
 
-        - **Bivariate Moran's I:** Análise espacial com a métrica Bivariate Moran's I.
+        - **Análise de Autocorrelação Espacial:** Análise espacial das taxas de suicídio e de doenças.
 
-        - **Spearman:** Análise de correlação de Spearman.
+        - **Análise de Correlação de Spearman:** Correlação de Spearman entre as taxas de doenças e a ocorrência de suicídios.
+
+        - **Determinação de Clusters de Suicídio:** Clusters de suicídio identificados pelo software *SatScan*.
+
+        - **Modelos Preditivos:** Modelos de classificação e regressão para a previsão de informações sobre as taxas de suicídio nos municípios brasileiros.
         """
 
         """
@@ -36,7 +40,7 @@ def present_homepage():
         """
 
         """
-        Este projeto está sendo desenvolvido pelos alunos de Engenharia de Computação Quadrimestral (2020) da Escola Politécnica da USP:
+        Este projeto foi desenvolvido pelos alunos de Engenharia de Computação Quadrimestral (2020) da Escola Politécnica da USP:
 
         - Leonardo Borges Mafra Machado - 9345213
 
@@ -44,7 +48,7 @@ def present_homepage():
 
         - Paula Yumi Pasqualini - 9345280
 
-        O projeto está sendo orientado pelo Professor Dr. Ricardo Luis de Azevedo da Rocha.
+        O projeto foi orientado pelo Professor Dr. Ricardo Luis de Azevedo da Rocha.
         """
 
         """
@@ -52,6 +56,6 @@ def present_homepage():
         """
 
         """
-        Este projeto está sendo realizado em parceria com o C²D e o Itaú Unibanco.
+        Este projeto foi realizado em parceria com o C²D e o Itaú Unibanco.
         """
     )
