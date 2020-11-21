@@ -10,7 +10,6 @@ from sklearn import metrics
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import geoplot
 import mapclassify
 import py7zr
 import os
