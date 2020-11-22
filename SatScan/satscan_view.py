@@ -17,13 +17,10 @@ def present_satscan():
 		que pode ser visualizado abaixo. 
 		"""
 	)
-
-	analysis = st.radio("Qual tipo de análise?",('cluster', 'clustermap'))
-
 	options = np.append(['Selecione um ano'], [str(x) for x in range(2008,2019)])
 	year = st.selectbox('Selecione um ano:', options)
 	if year != "Selecione um ano":
-		HtmlFile = open("SatScan/output_" + year + "." + analysis + ".html", 'r')
+		HtmlFile = open("SatScan/output_" + year + ".clustermap.html", 'r')
 		source_code = HtmlFile.read() 
 		components.html(source_code, height = 1200, scrolling = True)
 	

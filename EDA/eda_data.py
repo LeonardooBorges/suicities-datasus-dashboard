@@ -13,11 +13,9 @@ import os
 
 from EDA import dictionaries as dictionaries
 
-# import dask.dataframe
-#suicide_df = dask.dataframe.read_csv("suicide.csv")
-#suicide_df = suicide_df.drop(columns=[suicide_df.columns[0]])
 suicide_df = pd.read_csv("./EDA/suicide_final.csv", index_col=0)
 suicide_muncod_df = pd.read_csv("./EDA/suicide_rates_08_18.csv", index_col=0)
+suicideocorr_muncod_df = pd.read_csv("./EDA/suicideocorr_rates_08_18.csv", index_col=0)
 
 def get_suicide_data():
     return suicide_df
@@ -109,18 +107,50 @@ def plot_codmunres():
     gdf["CD_GEOCMU"] = gdf["CD_GEOCMU"].astype(int)
     gdf_city = pd.merge(gdf, cadmun, left_on="CD_GEOCMU", right_on="MUNCODDV", how="left")
 
-    options = np.append(['Selecione um ano'], [x for x in range(2008,2019)])
+    options = np.append(['Todos'], [x for x in range(2008,2019)])
     ano = st.selectbox('Selecione um ano:', options)
     result = pd.merge(gdf_city, suicide_muncod_df, left_on="MUNCOD", right_on="MUNCOD", how="left")
-    year_column = "RATE_" + str(ano)[-2:]
-    if ano != "Selecione um ano":
-        result = result[["NM_MUNICIP", "CD_GEOCMU", "geometry", year_column]]
-        fig, ax = plt.subplots(figsize = (15,15))
-        result.plot(column=year_column, ax=ax, legend=True,cmap='OrRd', scheme='user_defined', 
-            classification_kwds={'bins':[2, 5, 10, 50, 100]},
-            missing_kwds={'color': 'lightgrey', "label": "Valores ausentes"})
-        plt.title('Taxa de suicídios no Brasil em ' + ano+ ' (por 100 mil habitantes)',fontsize=25)
-        st.pyplot(fig)
+    if ano != "Todos":
+        column = "RATE_" + str(ano)[-2:]
+    else:
+        column = "AVG"
+    result = result[["NM_MUNICIP", "CD_GEOCMU", "geometry", column]]
+    fig, ax = plt.subplots(figsize = (15,15))
+    result.plot(column=column, ax=ax, legend=True,cmap='RdPu', scheme='user_defined', 
+        classification_kwds={'bins':[2, 5, 10, 50]},
+        missing_kwds={'color': 'lightgrey', "label": "Valores ausentes"})
+    plt.title('Taxa de suicídios no Brasil em ' + ano+ ' (por 100 mil habitantes)',fontsize=25)
+    st.pyplot(fig)
+
+def plot_codmunocorr():
+    zipFileName = 'Maps/BRMUE250GC_SIR.7z'
+    if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
+        print('Unzipping BRMUE250GC_SIR files')
+        with py7zr.SevenZipFile(zipFileName, 'r') as archive:
+            archive.extractall("Maps/")
+    
+    gdf = gpd.read_file('Maps/BRMUE250GC_SIR.shp')
+    
+    cadmun = pd.read_csv('./EDA/CADMUN.csv')
+    cadmun = cadmun[["MUNCOD", "MUNCODDV"]]
+  
+    gdf["CD_GEOCMU"] = gdf["CD_GEOCMU"].astype(int)
+    gdf_city = pd.merge(gdf, cadmun, left_on="CD_GEOCMU", right_on="MUNCODDV", how="left")
+
+    options = np.append(['Todos'], [x for x in range(2008,2019)])
+    ano = st.selectbox('Selecione um ano:', options)
+    result = pd.merge(gdf_city, suicideocorr_muncod_df, left_on="MUNCOD", right_on="MUNCOD", how="left")
+    if ano != "Todos":
+        column = "RATE_" + str(ano)[-2:]
+    else:
+        column = "AVG"
+    result = result[["NM_MUNICIP", "CD_GEOCMU", "geometry", column]]
+    fig, ax = plt.subplots(figsize = (15,15))
+    result.plot(column=column, ax=ax, legend=True,cmap='RdPu', scheme='user_defined', 
+        classification_kwds={'bins':[2, 5, 10, 50]},
+        missing_kwds={'color': 'lightgrey', "label": "Valores ausentes"})
+    plt.title('Taxa de suicídios no Brasil em ' + ano+ ' (por 100 mil habitantes)',fontsize=25)
+    st.pyplot(fig)
 
 def plot_idade():
     df_idade = suicide_df[suicide_df["IDADE"] > 0][["IDADE"]]
@@ -250,6 +280,8 @@ def plot_column(column):
         plot_linha_ii()
     elif column == "Município de Residência":
         plot_codmunres()
+    elif column == "Município de Ocorrência":
+        plot_codmunocorr()
     elif column == "Idade":
         plot_idade()
     elif column == "Sexo":

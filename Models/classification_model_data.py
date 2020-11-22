@@ -69,18 +69,36 @@ def plot_map(y_test, y_pred, test_df, model):
 
 
 def calculate_metrics(y_test, y_pred):
-    st.write("Matriz de Confusão")
+    st.markdown("""
+        ### Matriz de Confusão
+
+        A matriz de confusão é uma tabela que permite a visualização das previsões efetuadas por um modelo. 
+        As colunas indicam os **valores preditos** pelo modelo, enquanto as **linhas** correspondem aos **valores reais** das classes das observações.
+        Assim, espera-se obter a maior quantidade possível de observações na diagonal principal da tabela. 
+        """)
     st.write(metrics.confusion_matrix(y_test, y_pred))
+
+    st.markdown("""
+        ### Métricas do Modelo
+
+        Na tabela abaixo, são mostradas as métricas de teste para o modelo.
+        """)
     accuracy =  metrics.accuracy_score(y_test,y_pred)
     prfs = metrics.precision_recall_fscore_support(y_test,y_pred, zero_division=0)
     precision = prfs[0].mean()
     recall = prfs[1].mean()
     fscore = prfs[2].mean()
-    st.write("Acurácia:", accuracy)
-    st.write("Precisão:", precision)
-    st.write("Revocação:", recall)
-    st.write("F1-Score:", fscore)
+    metrics_df = pd.DataFrame({"Acurácia": [accuracy], "Precisão": [precision], "Revocação": [recall], "F1-Score":[fscore]})
+    st.write(metrics_df)
 
+    metrics_expander = st.beta_expander("Descrição das métricas:", expanded=False)
+    with metrics_expander:
+        st.markdown("""
+            - **Acurácia**: é a fração de observações cujas saídas foram corretamente previstas pelo modelo.
+            - **Precisão**: é a proporção de observações de previsão positiva corretamente classificadas pelo modelo.
+            - **Revocação**: é a proporção de observações de classe positiva corretamente identificadas pelo modelo.
+            - **F1-Score**: é uma combinação da precisão com a revocação, sendo definido pela seguinte fórmula: $F1-Score = 2*Precisao*Revocacao/(Precisão + Revocação)$
+        """)
     
 def highest_rates_model(model):
     test_df, X_test, y_test = get_test_df(satscan=False)
@@ -95,7 +113,6 @@ def highest_rates_model(model):
                 filename = "Models/sav/logistic_regression_highest_rates_sc.sav"
             else:
                 filename = "Models/sav/logistic_regression_highest_rates_mm.sav"
-            st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling")
         elif model == "Random Forest":
             filename = "Models/sav/random_forest_highest_rates.sav"
         elif model == "SVC (Linear)":
@@ -105,7 +122,6 @@ def highest_rates_model(model):
                 filename = "Models/sav/svm_linear_highest_rates_sc.sav"
             else:
                 filename = "Models/sav/svm_linear_highest_rates_mm.sav"
-            st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling")
         elif model == "SVC (RBF)":
             options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
@@ -113,7 +129,6 @@ def highest_rates_model(model):
                 filename = "Models/sav/svm_rbf_highest_rates_sc.sav"
             else:
                 filename = "Models/sav/svm_rbf_highest_rates_mm.sav"  
-            st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling") 
         else:
             return
         
@@ -121,6 +136,15 @@ def highest_rates_model(model):
         y_pred = classifier.predict(X_test) 
 
         calculate_metrics(y_test, y_pred)
+
+        st.markdown("""
+            ### Previsões do Modelo
+        """)
+
+        st.markdown(
+        '<p> O mapa abaixo mostra o resultado das previsões do modelo para o ano de 2018.</p>'
+        'Em <span style="color:red;"><b>vermelho</b></span> são destacados os municípios para os quais a previsão do modelo foi <b>incorreta</b>, e em <span style="color:blue;"><b>azul</b></span>, aqueles cuja previsão foi <b>correta</b>.', unsafe_allow_html=True
+    )
         plot_map(y_test, y_pred, test_df, model)
 
 def satscan_model(model):

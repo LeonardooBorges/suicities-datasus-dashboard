@@ -6,7 +6,7 @@ import scipy
 from numpy import load, save
 from libpysal.weights import WSP
 from libpysal.weights.contiguity import Queen
-from esda.moran import Moran_Local_BV, Moran
+from esda.moran import Moran_Local_BV, Moran_Local, Moran_BV
 import py7zr
 import os
 
@@ -88,10 +88,16 @@ def moran_local_bv(dataset):
   moran_bv = Moran_Local_BV(y, x, weights)
   return moran_bv
 
-def moran_global(dataset):
+def moran_local(dataset):
   y = dataset['AVG_SUICIDE_RATE'].values
-  moran = Moran(y, weights)
-  return moran
+  moran_loc = Moran_Local(y, weights)
+  return moran_loc
+
+def moran_bv(dataset):
+  x = dataset['AVG_SUICIDE_RATE'].values
+  y = dataset['AVG_DISEASE_RATE'].values
+  moran_loc = Moran_BV(y, x, weights)
+  return moran_loc
 
 def compute_weights():
   zipFileName = 'PySal/data.7z'
