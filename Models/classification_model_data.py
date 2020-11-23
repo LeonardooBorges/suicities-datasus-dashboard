@@ -3,6 +3,7 @@ import streamlit as st
 import seaborn as sns
 import numpy as np
 import pickle
+import joblib
 import altair as alt
 from sklearn import metrics
 
@@ -110,8 +111,12 @@ def highest_rates_model(model):
             options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
+                scaler = joblib.load("Models/sav/sc_x_highest_rate.save")
+                X_test = scaler.transform(X_test) 
                 filename = "Models/sav/logistic_regression_highest_rates_sc.sav"
             else:
+                scaler = joblib.load("Models/sav/mm_x_highest_rate.save")
+                X_test = scaler.transform(X_test) 
                 filename = "Models/sav/logistic_regression_highest_rates_mm.sav"
         elif model == "Random Forest":
             filename = "Models/sav/random_forest_highest_rates.sav"
@@ -119,22 +124,29 @@ def highest_rates_model(model):
             options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
+                scaler = joblib.load("Models/sav/sc_x_highest_rate.save")
+                X_test = scaler.transform(X_test) 
                 filename = "Models/sav/svm_linear_highest_rates_sc.sav"
             else:
+                scaler = joblib.load("Models/sav/mm_x_highest_rate.save")
+                X_test = scaler.transform(X_test) 
                 filename = "Models/sav/svm_linear_highest_rates_mm.sav"
         elif model == "SVC (RBF)":
             options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
+                scaler = joblib.load("Models/sav/sc_x_highest_rate.save")
+                X_test = scaler.transform(X_test) 
                 filename = "Models/sav/svm_rbf_highest_rates_sc.sav"
             else:
+                scaler = joblib.load("Models/sav/mm_x_highest_rate.save")
+                X_test = scaler.transform(X_test) 
                 filename = "Models/sav/svm_rbf_highest_rates_mm.sav"  
         else:
             return
         
         classifier = pickle.load(open(filename, 'rb'))
         y_pred = classifier.predict(X_test) 
-
         calculate_metrics(y_test, y_pred)
 
         st.markdown("""
@@ -144,7 +156,7 @@ def highest_rates_model(model):
         st.markdown(
         '<p> O mapa abaixo mostra o resultado das previsões do modelo para o ano de 2018.</p>'
         'Em <span style="color:red;"><b>vermelho</b></span> são destacados os municípios para os quais a previsão do modelo foi <b>incorreta</b>, e em <span style="color:blue;"><b>azul</b></span>, aqueles cuja previsão foi <b>correta</b>.', unsafe_allow_html=True
-    )
+        )
         plot_map(y_test, y_pred, test_df, model)
 
 def satscan_model(model):
@@ -157,8 +169,12 @@ def satscan_model(model):
             options_scaler_satscan = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_satscan)
             if scaler == "Standard":
+                scaler = joblib.load("Models/sav/sc_x_satscan.save")
+                X_test = scaler.transform(X_test)
                 filename = "Models/sav/logistic_regression_satscan_sc.sav"
             else:
+                scaler = joblib.load("Models/sav/mm_x_satscan.save")
+                X_test = scaler.transform(X_test)
                 filename = "Models/sav/logistic_regression_satscan_mm.sav"
             st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling")
         elif model == "Random Forest":
@@ -167,16 +183,24 @@ def satscan_model(model):
             options_scaler_satscan = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_satscan)
             if scaler == "Standard":
+                scaler = joblib.load("Models/sav/sc_x_satscan.save")
+                X_test = scaler.transform(X_test)
                 filename = "Models/sav/svm_linear_satscan_sc.sav"
             else:
+                scaler = joblib.load("Models/sav/mm_x_satscan.save")
+                X_test = scaler.transform(X_test)
                 filename = "Models/sav/svm_linear_satscan_mm.sav"
             st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling")
         elif model == "SVC (RBF)":
             options_scaler_satscan = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_satscan)
             if scaler == "Standard":
+                scaler = joblib.load("Models/sav/sc_x_satscan.save")
+                X_test = scaler.transform(X_test)
                 filename = "Models/sav/svm_rbf_satscan_sc.sav"
             else:
+                scaler = joblib.load("Models/sav/mm_x_satscan.save")
+                X_test = scaler.transform(X_test)
                 filename = "Models/sav/svm_rbf_satscan_mm.sav"  
             st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling") 
         else:
