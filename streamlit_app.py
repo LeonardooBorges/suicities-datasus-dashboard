@@ -8,8 +8,9 @@ import Models.classification_model_view as classification_vw
 import Models.regression_model_view as regression_vw
 
 st.sidebar.title("Dashboard")
-dashboard = st.sidebar.selectbox("Escolha o painel que deseja ver:", ["Homepage", "Análise Exploratória de Dados", 
-	"Análise de Correlação de Spearman", "Análise de Autocorrelação Espacial", "Determinação de Clusters de Suicídio", "Modelos Preditivos (Regressão)", "Modelos Preditivos (Classificação)"])
+dashboard = st.sidebar.radio("Escolha o painel que deseja ver:",("Homepage", "Análise Exploratória de Dados", 
+	"Análise de Correlação de Spearman", "Análise de Autocorrelação Espacial", "Determinação de Clusters de Suicídio", "Modelos Preditivos (Regressão)", "Modelos Preditivos (Classificação)"))
+  
 if dashboard == "Homepage":
     present_homepage()
 elif dashboard == "Análise Exploratória de Dados":

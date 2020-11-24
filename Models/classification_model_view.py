@@ -36,11 +36,10 @@ def present_classification_model():
     )
   
   options = np.append(['Selecione um modelo'], ["Naive Bayes", "Regressão Logística", "Random Forest", "SVC (Linear)", "SVC (RBF)"])
+            
   model = st.selectbox('Selecione um modelo:', options)
 
   if analysis == "Mediana Nacional":
-    # dt.highest_rates_model(model)
     dt.run_model(model, satscan=False)
   else:
-    # dt.satscan_model(model)
     dt.run_model(model, satscan=True)
