@@ -6,7 +6,15 @@ import Spearman.spearman_view as spearman_vw
 import SatScan.satscan_view as satscan_vw
 import Models.classification_model_view as classification_vw
 import Models.regression_model_view as regression_vw
-
+st.markdown(
+    """
+<style>
+	div.Widget.row-widget.stRadio > div{flex-direction:row;}
+	div.Widget.row-widget.stRadio > div > label {margin: 10px 0;}
+</style>
+""",
+    unsafe_allow_html=True,
+)
 st.sidebar.title("Dashboard")
 dashboard = st.sidebar.radio("Escolha o painel que deseja ver:",("Homepage", "Análise Exploratória de Dados", 
 	"Análise de Correlação de Spearman", "Análise de Autocorrelação Espacial", "Determinação de Clusters de Suicídio", "Modelos Preditivos (Regressão)", "Modelos Preditivos (Classificação)"))
