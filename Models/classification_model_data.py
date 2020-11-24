@@ -6,6 +6,8 @@ import pickle
 import joblib
 import altair as alt
 from sklearn import metrics
+import shap
+import streamlit.components.v1 as components
 
 # Plotting
 import geopandas as gpd
@@ -22,15 +24,18 @@ def remove_last_digit(x):
 
 def get_test_df(satscan=False):
     if satscan:
-        test_df = pd.read_csv("Models/test_data_classification_highest_rates.csv", index_col=0)
-        X_test = test_df.drop(columns=["TARGET", "MUNCOD"])
-        y_test = test_df["TARGET"]
-        return test_df, X_test, y_test
+        return pd.read_csv("Models/test_data_classification_satscan.csv", index_col=0)
     else:
-        test_df = pd.read_csv("Models/test_data_classification_satscan.csv", index_col=0)
+        return pd.read_csv("Models/test_data_classification_highest_rates.csv", index_col=0)
+        
+def get_test_data(test_df, satscan=False):
+    if satscan:
         X_test = test_df.drop(columns=["RISK", "MUNCOD"])
         y_test = test_df["RISK"]
-        return test_df, X_test, y_test
+    else:
+        X_test = test_df.drop(columns=["TARGET", "MUNCOD"])
+        y_test = test_df["TARGET"]
+    return X_test, y_test
 
 def plot_map(y_test, y_pred, test_df, model):
     zipFileName = 'Maps/BRMUE250GC_SIR.7z'
@@ -68,8 +73,11 @@ def plot_map(y_test, y_pred, test_df, model):
     plt.axis('off')
     st.pyplot(fig)
 
+def st_shap(plot, height=None):
+    shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
+    components.html(shap_html, height=height)
 
-def calculate_metrics(y_test, y_pred):
+def get_confusion_matrix(y_test, y_pred):
     st.markdown("""
         ### Matriz de Confusão
 
@@ -79,6 +87,7 @@ def calculate_metrics(y_test, y_pred):
         """)
     st.write(metrics.confusion_matrix(y_test, y_pred))
 
+def calculate_metrics(y_test, y_pred):
     st.markdown("""
         ### Métricas do Modelo
 
@@ -91,123 +100,121 @@ def calculate_metrics(y_test, y_pred):
     fscore = prfs[2].mean()
     metrics_df = pd.DataFrame({"Acurácia": [accuracy], "Precisão": [precision], "Revocação": [recall], "F1-Score":[fscore]})
     st.write(metrics_df)
-
-    metrics_expander = st.beta_expander("Descrição das métricas:", expanded=False)
-    with metrics_expander:
-        st.markdown("""
+    st.markdown("""
+            #### Descrição das métricas
             - **Acurácia**: é a fração de observações cujas saídas foram corretamente previstas pelo modelo.
             - **Precisão**: é a proporção de observações de previsão positiva corretamente classificadas pelo modelo.
             - **Revocação**: é a proporção de observações de classe positiva corretamente identificadas pelo modelo.
             - **F1-Score**: é uma combinação da precisão com a revocação, sendo definido pela seguinte fórmula: $F1-Score = 2*Precisao*Revocacao/(Precisão + Revocação)$
         """)
     
-def highest_rates_model(model):
-    test_df, X_test, y_test = get_test_df(satscan=False)
-    filename = ""
-    if model != "Selecione um modelo":
-        if model == "Naive Bayes":
-            filename = "Models/sav/naive_bayes_highest_rates.sav"
-        elif model == "Regressão Logística":
-            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
-            if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_highest_rate.save")
-                X_test = scaler.transform(X_test) 
-                filename = "Models/sav/logistic_regression_highest_rates_sc.sav"
-            else:
-                scaler = joblib.load("Models/sav/mm_x_highest_rate.save")
-                X_test = scaler.transform(X_test) 
-                filename = "Models/sav/logistic_regression_highest_rates_mm.sav"
-        elif model == "Random Forest":
-            filename = "Models/sav/random_forest_highest_rates.sav"
-        elif model == "SVC (Linear)":
-            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
-            if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_highest_rate.save")
-                X_test = scaler.transform(X_test) 
-                filename = "Models/sav/svm_linear_highest_rates_sc.sav"
-            else:
-                scaler = joblib.load("Models/sav/mm_x_highest_rate.save")
-                X_test = scaler.transform(X_test) 
-                filename = "Models/sav/svm_linear_highest_rates_mm.sav"
-        elif model == "SVC (RBF)":
-            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
-            if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_highest_rate.save")
-                X_test = scaler.transform(X_test) 
-                filename = "Models/sav/svm_rbf_highest_rates_sc.sav"
-            else:
-                scaler = joblib.load("Models/sav/mm_x_highest_rate.save")
-                X_test = scaler.transform(X_test) 
-                filename = "Models/sav/svm_rbf_highest_rates_mm.sav"  
-        else:
-            return
-        
-        classifier = pickle.load(open(filename, 'rb'))
-        y_pred = classifier.predict(X_test) 
-        calculate_metrics(y_test, y_pred)
-
-        st.markdown("""
+def get_predictions_2018(y_test, y_pred, test_df, model):
+    st.markdown("""
             ### Previsões do Modelo
-        """)
+    """)
 
-        st.markdown(
-        '<p> O mapa abaixo mostra o resultado das previsões do modelo para o ano de 2018.</p>'
-        'Em <span style="color:red;"><b>vermelho</b></span> são destacados os municípios para os quais a previsão do modelo foi <b>incorreta</b>, e em <span style="color:blue;"><b>azul</b></span>, aqueles cuja previsão foi <b>correta</b>.', unsafe_allow_html=True
-        )
-        plot_map(y_test, y_pred, test_df, model)
+    st.markdown(
+    '<p> O mapa abaixo mostra o resultado das previsões do modelo para o ano de 2018.</p>'
+    'Em <span style="color:red;"><b>vermelho</b></span> são destacados os municípios para os quais a previsão do modelo foi <b>incorreta</b>, e em <span style="color:blue;"><b>azul</b></span>, aqueles cuja previsão foi <b>correta</b>.', unsafe_allow_html=True
+    )
+    plot_map(y_test, y_pred, test_df, model)
 
-def satscan_model(model):
-    test_df, X_test, y_test = get_test_df(satscan=True)
+def run_model(model, satscan):
+    test_df = get_test_df(satscan=satscan)
+    X_test, y_test = get_test_data(test_df, satscan=satscan)
+    suffix = "satscan" if satscan else "highest_rates"
     filename = ""
+    classifier = None
     if model != "Selecione um modelo":
         if model == "Naive Bayes":
-            filename = "Models/sav/naive_bayes_satscan.sav"
+            classifier = pickle.load(open("Models/sav/naive_bayes_{}.sav".format(suffix), 'rb'))
         elif model == "Regressão Logística":
-            options_scaler_satscan = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_satscan)
+            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
+            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_satscan.save")
-                X_test = scaler.transform(X_test)
-                filename = "Models/sav/logistic_regression_satscan_sc.sav"
+                scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
+                X_test = scaler.transform(X_test) 
+                classifier = pickle.load(open("Models/sav/logistic_regression_{}_sc.sav".format(suffix), 'rb'))
             else:
-                scaler = joblib.load("Models/sav/mm_x_satscan.save")
-                X_test = scaler.transform(X_test)
-                filename = "Models/sav/logistic_regression_satscan_mm.sav"
-            st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling")
+                scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
+                X_test = scaler.transform(X_test) 
+                classifier = pickle.load(open("Models/sav/logistic_regression_{}_mm.sav".format(suffix), 'rb'))
         elif model == "Random Forest":
-            filename = "Models/sav/random_forest_satscan.sav"
+            classifier = pickle.load(open("Models/sav/random_forest_{}.sav".format(suffix), 'rb'))
         elif model == "SVC (Linear)":
-            options_scaler_satscan = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_satscan)
+            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
+            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_satscan.save")
+                scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
                 X_test = scaler.transform(X_test)
-                filename = "Models/sav/svm_linear_satscan_sc.sav"
+                classifier = pickle.load(open("Models/sav/svm_linear_{}_sc.sav".format(suffix), 'rb')) 
             else:
-                scaler = joblib.load("Models/sav/mm_x_satscan.save")
-                X_test = scaler.transform(X_test)
-                filename = "Models/sav/svm_linear_satscan_mm.sav"
-            st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling")
+                scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
+                X_test = scaler.transform(X_test) 
+                classifier = pickle.load(open("Models/sav/svm_linear_{}_mm.sav".format(suffix), 'rb'))
         elif model == "SVC (RBF)":
-            options_scaler_satscan = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_satscan)
+            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
+            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_satscan.save")
-                X_test = scaler.transform(X_test)
-                filename = "Models/sav/svm_rbf_satscan_sc.sav"
+                scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
+                X_test = scaler.transform(X_test) 
+                classifier = pickle.load(open("Models/sav/svm_rbf_{}_sc.sav".format(suffix), 'rb'))
             else:
-                scaler = joblib.load("Models/sav/mm_x_satscan.save")
-                X_test = scaler.transform(X_test)
-                filename = "Models/sav/svm_rbf_satscan_mm.sav"  
-            st.write("Modelo escolhido: ", model + " com " + scaler + " Scaling") 
+                scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
+                X_test = scaler.transform(X_test) 
+                classifier = pickle.load(open("Models/sav/svm_rbf_{}_mm.sav".format(suffix), 'rb'))
         else:
             return
-        
-        classifier = pickle.load(open(filename, 'rb'))
+    if classifier != None:
         y_pred = classifier.predict(X_test) 
+        shap_model_list = ["SVC (Linear)", "Random Forest", "Regressão Logística"]
+        if model not in shap_model_list:
+            analysis = st.radio("Visualizar resultados:",('Matriz de Confusão', 'Métricas do modelo', 'Previsões para 2018'))
+            if analysis == "Matriz de Confusão":
+                get_confusion_matrix(y_test, y_pred)
+            elif analysis == "Métricas do modelo":
+                calculate_metrics(y_test, y_pred)
+            else:
+                get_predictions_2018(y_test, y_pred, test_df, model)
+        else:
+            analysis = st.radio("Visualizar resultados:",('Matriz de Confusão', 'Métricas do modelo', 'Previsões para 2018', 'Análise SHAP'))
+            if analysis == "Matriz de Confusão":
+                get_confusion_matrix(y_test, y_pred)
+            elif analysis == "Métricas do modelo":
+                calculate_metrics(y_test, y_pred)
+            elif analysis == "Previsões para 2018":
+                get_predictions_2018(y_test, y_pred, test_df, model)
+            else:
+                get_shap_analysis(model, classifier, X_test)
 
-        calculate_metrics(y_test, y_pred)
-        plot_map(y_test, y_pred, test_df, model)
+
+def get_cadmun(test_df):
+    cadmun = pd.read_csv("Models/CADMUN.csv")
+    cadmun = cadmun[cadmun["SITUACAO"] == "ATIVO"]
+    cadmun = cadmun.sort_values(by="MUNNOMEX")
+    cadmun = cadmun[["MUNCOD", "MUNNOME"]]
+    muncod_list = list(test_df["MUNCOD"])
+    cadmun = cadmun[cadmun['MUNCOD'].isin(muncod_list)]
+    return cadmun
+
+        
+def get_shap_analysis(model, classifier, X_test, satscan=False):
+    test_df = get_test_df(satscan=satscan)
+    cadmun = get_cadmun(test_df)
+    city = st.selectbox('Selecione uma cidade:', list(cadmun['MUNNOME']))
+    muncod = int(cadmun[cadmun["MUNNOME"] == city]["MUNCOD"])
+    col_target = "TARGET" if satscan == False else "RISK"
+    data_for_prediction = test_df.loc[test_df['MUNCOD'] == muncod].drop(columns=["MUNCOD", col_target])
+    data_for_prediction_array = data_for_prediction.values.reshape(1, -1)
+    if muncod:
+        if model == "SVC (Linear)" or model == "Regressão Logística":
+            explainer = shap.LinearExplainer(classifier, X_test, feature_perturbation="interventional")
+            shap_values = explainer.shap_values(data_for_prediction)
+            shap.initjs()
+            st_shap(shap.force_plot(explainer.expected_value, shap_values, data_for_prediction), 400)
+        elif model == "Random Forest":
+            explainer = shap.TreeExplainer(classifier)
+            shap_values = explainer.shap_values(data_for_prediction)
+            shap.initjs()
+            st_shap(shap.force_plot(explainer.expected_value[1], shap_values[1], data_for_prediction), 400)
+   

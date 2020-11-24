@@ -39,6 +39,8 @@ def present_classification_model():
   model = st.selectbox('Selecione um modelo:', options)
 
   if analysis == "Mediana Nacional":
-    dt.highest_rates_model(model)
+    # dt.highest_rates_model(model)
+    dt.run_model(model, satscan=False)
   else:
-    dt.satscan_model(model)
+    # dt.satscan_model(model)
+    dt.run_model(model, satscan=True)
