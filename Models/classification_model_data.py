@@ -19,8 +19,19 @@ import os
 
 root = "../"
 
+dict_uf_cod = {11: 'RO', 12: 'AC', 13: 'AM', 14: 'RR', 15: 'PA', 16: 'AP', 17: 'TO',
+21: 'MA', 22: 'PI', 23: 'CE', 24: 'RN', 25: 'PB', 26: 'PE', 27: 'AL', 28: 'SE',
+29: 'BA', 31: 'MG', 32: 'ES', 33: 'RJ', 35: 'SP', 41: 'PR', 42: 'SC', 43: 'RS',
+50: 'MS', 51: 'MT', 52: 'GO', 53: 'DF'}
+
 def remove_last_digit(x):
     return np.floor(x.astype(int) / 10).astype(int)
+
+def get_train_df(satscan=False):
+    if satscan:
+        return pd.read_csv("Models/train_data_classification_satscan.csv", index_col=0)
+    else:
+        return pd.read_csv("Models/train_data_classification_highest_rates.csv", index_col=0)
 
 def get_test_df(satscan=False):
     if satscan:
@@ -36,6 +47,15 @@ def get_test_data(test_df, satscan=False):
         X_test = test_df.drop(columns=["TARGET", "MUNCOD"])
         y_test = test_df["TARGET"]
     return X_test, y_test
+
+def get_train_data(train_df, satscan=False):
+    if satscan:
+        X_train = train_df.drop(columns=["RISK"])
+        y_train = train_df["RISK"]
+    else:
+        X_train = train_df.drop(columns=["TARGET"])
+        y_train = train_df["TARGET"]
+    return X_train, y_train
 
 def plot_map(y_test, y_pred, test_df, model):
     zipFileName = 'Maps/BRMUE250GC_SIR.7z'
@@ -120,23 +140,28 @@ def get_predictions_2018(y_test, y_pred, test_df, model):
     plot_map(y_test, y_pred, test_df, model)
 
 def run_model(model, satscan):
+    train_df = get_train_df(satscan=satscan)
     test_df = get_test_df(satscan=satscan)
     X_test, y_test = get_test_data(test_df, satscan=satscan)
+    X_train, y_train = get_train_data(train_df, satscan=satscan)
     suffix = "satscan" if satscan else "highest_rates"
     filename = ""
     classifier = None
     if model != "Selecione um modelo":
         if model == "Naive Bayes":
             classifier = pickle.load(open("Models/sav/naive_bayes_{}.sav".format(suffix), 'rb'))
+            X_test  = X_test.drop(columns=list(dict_uf_cod.values()))
         elif model == "Regressão Logística":
             options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
             scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
                 scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
+                X_train = scaler.transform(X_train)
                 X_test = scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/logistic_regression_{}_sc.sav".format(suffix), 'rb'))
             else:
                 scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
+                X_train = scaler.transform(X_train)
                 X_test = scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/logistic_regression_{}_mm.sav".format(suffix), 'rb'))
         elif model == "Random Forest":
@@ -146,10 +171,12 @@ def run_model(model, satscan):
             scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
                 scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
+                X_train = scaler.transform(X_train)
                 X_test = scaler.transform(X_test)
                 classifier = pickle.load(open("Models/sav/svm_linear_{}_sc.sav".format(suffix), 'rb')) 
             else:
                 scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
+                X_train = scaler.transform(X_train)
                 X_test = scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/svm_linear_{}_mm.sav".format(suffix), 'rb'))
         elif model == "SVC (RBF)":
@@ -157,10 +184,12 @@ def run_model(model, satscan):
             scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
             if scaler == "Standard":
                 scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
+                X_train = scaler.transform(X_train)
                 X_test = scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/svm_rbf_{}_sc.sav".format(suffix), 'rb'))
             else:
                 scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
+                X_train = scaler.transform(X_train)
                 X_test = scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/svm_rbf_{}_mm.sav".format(suffix), 'rb'))
         else:
@@ -185,7 +214,7 @@ def run_model(model, satscan):
             elif analysis == "Previsões para 2018":
                 get_predictions_2018(y_test, y_pred, test_df, model)
             else:
-                get_shap_analysis(model, classifier, X_test)
+                get_shap_analysis(model, classifier, X_train, X_test, satscan=satscan)
 
 
 def get_cadmun(test_df):
@@ -198,8 +227,26 @@ def get_cadmun(test_df):
     return cadmun
 
         
-def get_shap_analysis(model, classifier, X_test, satscan=False):
+def get_shap_analysis(model, classifier, X_train, X_test, satscan=False):
     test_df = get_test_df(satscan=satscan)
+    # print(column_names)
+    # if model == "SVC (Linear)" or model == "Regressão Logística":
+    #     explainer = shap.LinearExplainer(classifier, X_train, feature_perturbation="interventional")
+    #     shap_values = explainer.shap_values(X_test)
+    #     st_shap(shap.summary_plot(shap_values, X_test, feature_names=column_names), 400)
+    # el
+    # if model == "Random Forest":
+    #     explainer = shap.TreeExplainer(classifier)
+    #     shap_values = explainer.shap_values(X_test)
+    #     st_shap(shap.summary_plot(shap_values[1], X_test, feature_names=column_names, show=False), 400)
+    st.markdown("""
+        ### Análise SHAP
+        A biblioteca SHAP permite uma melhor compreensão dos atributos que mais impactaram a decisão do classificador.
+        - **Output value**: é a previsão para o município em questão
+        - **Base value**: é o valor que seria predito caso não houvessem informações sobre os atributos daquele município, ou seja, é o valor médio das previsões
+        - **Vermelho/Azul**: as cores indicam os atributos que mais "empurram" a previsão para a direita (mostrados em vermelho) ou para a esquerda (mostrados em azul)
+    """)
+
     cadmun = get_cadmun(test_df)
     city = st.selectbox('Selecione uma cidade:', list(cadmun['MUNNOME']))
     muncod = int(cadmun[cadmun["MUNNOME"] == city]["MUNCOD"])
@@ -208,7 +255,7 @@ def get_shap_analysis(model, classifier, X_test, satscan=False):
     data_for_prediction_array = data_for_prediction.values.reshape(1, -1)
     if muncod:
         if model == "SVC (Linear)" or model == "Regressão Logística":
-            explainer = shap.LinearExplainer(classifier, X_test, feature_perturbation="interventional")
+            explainer = shap.LinearExplainer(classifier, X_train, feature_perturbation="interventional")
             shap_values = explainer.shap_values(data_for_prediction)
             shap.initjs()
             st_shap(shap.force_plot(explainer.expected_value, shap_values, data_for_prediction), 400)
