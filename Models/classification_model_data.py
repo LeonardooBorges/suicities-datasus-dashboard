@@ -147,50 +147,46 @@ def run_model(model, satscan):
     suffix = "satscan" if satscan else "highest_rates"
     filename = ""
     classifier = None
+    sc_scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
+    mm_scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
     if model != "Selecione um modelo":
         if model == "Naive Bayes":
             classifier = pickle.load(open("Models/sav/naive_bayes_{}.sav".format(suffix), 'rb'))
             X_test  = X_test.drop(columns=list(dict_uf_cod.values()))
         elif model == "Regressão Logística":
-            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
+            options_scaler = np.append(['MinMax'], ["Standard"])
+            scaler = st.selectbox('Selecione um scaler:', options_scaler)
             if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
-                X_train = scaler.transform(X_train)
-                X_test = scaler.transform(X_test) 
+                X_train = sc_scaler.transform(X_train)
+                X_test = sc_scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/logistic_regression_{}_sc.sav".format(suffix), 'rb'))
             else:
-                scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
-                X_train = scaler.transform(X_train)
-                X_test = scaler.transform(X_test) 
+                X_train = mm_scaler.transform(X_train)
+                X_test = mm_scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/logistic_regression_{}_mm.sav".format(suffix), 'rb'))
         elif model == "Random Forest":
             classifier = pickle.load(open("Models/sav/random_forest_{}.sav".format(suffix), 'rb'))
         elif model == "SVC (Linear)":
-            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
+            options_scaler = np.append(['MinMax'], ["Standard"])
+            scaler = st.selectbox('Selecione um scaler:', options_scaler)
             if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
-                X_train = scaler.transform(X_train)
-                X_test = scaler.transform(X_test)
+                X_train = sc_scaler.transform(X_train)
+                X_test = sc_scaler.transform(X_test)
                 classifier = pickle.load(open("Models/sav/svm_linear_{}_sc.sav".format(suffix), 'rb')) 
             else:
-                scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
-                X_train = scaler.transform(X_train)
-                X_test = scaler.transform(X_test) 
+                X_train = mm_scaler.transform(X_train)
+                X_test = mm_scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/svm_linear_{}_mm.sav".format(suffix), 'rb'))
         elif model == "SVC (RBF)":
-            options_scaler_highest_rates = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler_highest_rates)
+            options_scaler = np.append(['MinMax'], ["Standard"])
+            scaler = st.selectbox('Selecione um scaler:', options_scaler)
             if scaler == "Standard":
-                scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
-                X_train = scaler.transform(X_train)
-                X_test = scaler.transform(X_test) 
+                X_train = sc_scaler.transform(X_train)
+                X_test = sc_scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/svm_rbf_{}_sc.sav".format(suffix), 'rb'))
             else:
-                scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
-                X_train = scaler.transform(X_train)
-                X_test = scaler.transform(X_test) 
+                X_train = mm_scaler.transform(X_train)
+                X_test = mm_scaler.transform(X_test) 
                 classifier = pickle.load(open("Models/sav/svm_rbf_{}_mm.sav".format(suffix), 'rb'))
         else:
             return
