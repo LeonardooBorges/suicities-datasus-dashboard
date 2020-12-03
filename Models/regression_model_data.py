@@ -24,14 +24,27 @@ dict_uf_cod = {11: 'RO', 12: 'AC', 13: 'AM', 14: 'RR', 15: 'PA', 16: 'AP', 17: '
 29: 'BA', 31: 'MG', 32: 'ES', 33: 'RJ', 35: 'SP', 41: 'PR', 42: 'SC', 43: 'RS',
 50: 'MS', 51: 'MT', 52: 'GO', 53: 'DF'}
 
+
 def calculate_metrics(y_test, y_pred, X_test):
     st.markdown("""
         ### Métricas do Modelo
 
-        Na tabela abaixo, são mostradas as métricas de teste para o modelo.
+        A primeira métrica calculada foi o RMSE, que consiste na raiz quadrada dos erros médios do modelo (sendo o erro a diferença entre o valor previsto e o real).
+        O valor obtido pode ser comparado com o RMSE do modelo *baseline*, que consiste em prever que a taxa de suicídios em 2018 será a mesma do ano anterior.
         """)
+
     rmse = np.sqrt(metrics.mean_squared_error(y_pred,y_test))
-    st.write("RMSE: {:.2f}".format(rmse))
+    rmse_baseline = np.sqrt(metrics.mean_squared_error(X_test["PREVIOUS"],y_test))
+    st.write("**RMSE**: {:.2f}".format(rmse))
+    st.write("**RMSE da baseline**: {:.2f}".format(rmse_baseline))
+    
+
+    st.markdown("""
+
+        O modelo de regressão também foi avaliado sob a óptica das métricas de classificação. Para isso, as taxas de suicídios previstas foram comapradas
+        com as taxas do ano anterior, sendo classificadas como 1 as observações para as quais a taxa sofreu um aumento, e 0 caso contrário.
+        Na tabela abaixo, são mostradas os resultados para essas métricas:
+        """)
 
     up_df = pd.DataFrame({"Pred": y_pred, "Real": y_test, "Previous": X_test["PREVIOUS"]})
     up_df["UP"] = up_df["Previous"] < up_df["Real"]
@@ -64,68 +77,24 @@ def get_predictions_2018(X_test_original, y_pred):
     muncod = int(cadmun[cadmun["MUNNOME"] == city]["MUNCOD"])
 
     final_df = result.loc[result['MUNCOD'] == muncod]
-    plot_df = final_df.drop(columns=["MUNCOD", "y_pred"]).T
-    # plot_df = plot_df.reset_index()
-    # plot_df.columns = ['Year', 'Real']
-    plot_df.columns = ['Real']
-    pred =final_df.drop(columns=["MUNCOD", "RATE_18"]).T
-    plot_df["Pred"] = list(pred.iloc[:, 0])
+    plot_df = final_df.drop(columns=["MUNCOD", "RATE_18"])
+    plot_df.columns = [str(x) for x in range(2008,2019)]
+    plot_df = plot_df.T
+    plot_df.columns = ['Prevista']
+    real = final_df.drop(columns=["MUNCOD", "y_pred"]).T
+    plot_df["Real"] = list(real.iloc[:, 0])
+    plot_df.index.name = "x"
+    data = plot_df.reset_index().melt('x')
 
-    df.index.name = "x"
-    data = df.reset_index().melt('x')
-    st.write(data)
-    graph = alt.Chart(data).mark_line().encode(
-        x='x',
-        y='value',
-        color='variable'
-    )
+    scales = alt.selection_interval(bind='scales')
+    graph = alt.Chart(data, title="Evolução da taxa de suicídios (2008-2018)").mark_line(point=True).encode(
+        x=alt.X('x', title='Ano'),
+        y=alt.Y('value', title='Taxa'),
+        color=alt.Color('variable', title="Taxa"),
+        tooltip=[alt.Tooltip('x', title='Ano'), alt.Tooltip('value', title='Taxa')]
+    ).add_selection(scales).interactive()
 
     st.altair_chart((graph).configure_view(strokeOpacity=0).configure_title(fontSize=12).properties(width=700, height=410))
-
-    
-    # scales = alt.selection_interval(bind='scales')
-    # graph = alt.Chart(real_df, title="Evolução da taxa de suicídios (2008-2018").mark_line(point=True).encode(
-    #     x=alt.X('Year', title='Ano'),
-    #     y=alt.Y('Real', title='Taxa Real'),
-    #     tooltip=[alt.Tooltip('Year', title='Ano'), alt.Tooltip('Real', title='Taxa Real')]
-    # ).add_selection(scales).interactive()
-
-    # st.altair_chart((graph).configure_view(strokeOpacity=0).configure_title(fontSize=12).properties(width=700, height=410))
-
-
-    #st.write(real_df)
-    #st.write(pred_df)
-#     zipFileName = 'Maps/BRMUE250GC_SIR.7z'
-#     if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
-#         print('Unzipping BRMUE250GC_SIR files')
-#         with py7zr.SevenZipFile(zipFileName, 'r') as archive:
-#             archive.extractall("Maps/")
-    
-#     gdf = gpd.read_file('Maps/BRMUE250GC_SIR.shp')
-    
-#     cadmun = pd.read_csv('./EDA/CADMUN.csv')
-#     cadmun = cadmun[["MUNCOD", "MUNCODDV"]]
-  
-#     gdf["CD_GEOCMU"] = gdf["CD_GEOCMU"].astype(int)
-#     gdf_city = pd.merge(gdf, cadmun, left_on="CD_GEOCMU", right_on="MUNCODDV", how="left")
-
-#     result = pd.merge(gdf_city, df, left_on="MUNCOD", right_on="MUNCOD", how="left")
-#     result = result[["NM_MUNICIP", "CD_GEOCMU", "geometry", "y_pred"]]
-#     fig, ax = plt.subplots(figsize = (15,15))
-#     result.plot(column="y_pred", ax=ax, legend=True,cmap='RdPu', scheme='user_defined', 
-#         classification_kwds={'bins':[2, 5, 10, 50]},
-#         missing_kwds={'color': 'lightgrey', "label": "Valores ausentes"})
-#     plt.title('Taxa de suicídios no Brasil em 2018 (por 100 mil habitantes)',fontsize=25)
-#     st.pyplot(fig)
-
-#     result = pd.merge(gdf_city, df, left_on="MUNCOD", right_on="MUNCOD", how="left")
-#     result = result[["NM_MUNICIP", "CD_GEOCMU", "geometry", "y_test"]]
-#     fig, ax = plt.subplots(figsize = (15,15))
-#     result.plot(column="y_test", ax=ax, legend=True,cmap='RdPu', scheme='user_defined', 
-#         classification_kwds={'bins':[2, 5, 10, 50]},
-#         missing_kwds={'color': 'lightgrey', "label": "Valores ausentes"})
-#     plt.title('Taxa de suicídios no Brasil em 2018 (por 100 mil habitantes)',fontsize=25)
-#     st.pyplot(fig)
 
 def run_model(model):
     test_df = pd.read_csv("Models/test_data_regression.csv", index_col=0)
@@ -133,41 +102,43 @@ def run_model(model):
     X_test = X_test_original.copy()
     y_test = test_df["RATE"]
     features = joblib.load("Models/sav/selected_cor_features")
-    sc_scaler_x = joblib.load("Models/sav/sc_x_regression.save")
     mm_scaler_x = joblib.load("Models/sav/mm_x_regression.save")
-    sc_scaler_y = joblib.load("Models/sav/sc_y_regression.save")
     mm_scaler_y = joblib.load("Models/sav/mm_y_regression.save")
     filename = ""
     regressor = None
 
     if model != "Selecione um modelo":
-        if model == "Adaboost":
+        if model == "Regressão Linear":
             X_test = X_test[features]
-            regressor = pickle.load(open("Models/sav/adaboost_regression.sav", 'rb'))
-            y_pred = regressor.predict(X_test)
-        elif model == "Gradient Boost":
+            X_test_transf = pd.DataFrame(mm_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
+            regressor = pickle.load(open("Models/sav/linear_regression.sav", 'rb'))
+            y_pred = regressor.predict(X_test_transf)
+            y_pred = mm_scaler_y.inverse_transform(y_pred.reshape(-1,1))
+            y_pred = y_pred.ravel()
+        elif model == "ElasticNet":
             X_test = X_test[features]
-            regressor = pickle.load(open("Models/sav/gradient_boost_regression.sav", 'rb'))
-            y_pred = regressor.predict(X_test)
+            X_test_transf = pd.DataFrame(mm_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
+            regressor = pickle.load(open("Models/sav/elastic_net_regression.sav", 'rb'))
+            y_pred = regressor.predict(X_test_transf)
+            y_pred = mm_scaler_y.inverse_transform(y_pred.reshape(-1,1))
+            y_pred = y_pred.ravel()
+        elif model == "Random Forest":
+            st.write("Not implemented")
         elif model == "SVR":
             X_test = X_test[features]
-            options_scaler = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler)
-            if scaler == "Standard":
-                X_test_transf = pd.DataFrame(sc_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
-                regressor = pickle.load(open("Models/sav/svr_sc_regression.sav", 'rb')) 
-                y_pred = regressor.predict(X_test_transf)
-                y_pred = sc_scaler_y.inverse_transform(y_pred.reshape(-1,1))
-                y_pred = y_pred.ravel()
-            else:
-                X_test_transf = pd.DataFrame(mm_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
-                regressor = pickle.load(open("Models/sav/svr_mm_regression.sav", 'rb'))
-                y_pred = regressor.predict(X_test_transf)
-                y_pred = mm_scaler_y.inverse_transform(y_pred.reshape(-1,1))
-                y_pred = y_pred.ravel()
+            X_test_transf = pd.DataFrame(mm_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
+            regressor = pickle.load(open("Models/sav/svr_mm_regression.sav", 'rb'))
+            y_pred = regressor.predict(X_test_transf)
+            y_pred = mm_scaler_y.inverse_transform(y_pred.reshape(-1,1))
+            y_pred = y_pred.ravel()
         else:
             return
     if regressor != None:
+        my_expander = st.beta_expander("Descrição dos hiperparâmetros do modelo:", expanded=False)
+        with my_expander:
+            params = regressor.get_params()
+            params_df = pd.DataFrame(params.items(), columns=['Parâmetro', 'Valor'])
+            st.write(params_df)
         analysis = st.radio("Visualizar resultados:",('Métricas do modelo', 'Previsões para 2018',))
         if analysis == "Métricas do modelo":
             calculate_metrics(y_test, y_pred, X_test)

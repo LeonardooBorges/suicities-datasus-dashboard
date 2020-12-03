@@ -84,7 +84,7 @@ def plot_dtobito():
     df_dtobito["DTOBITO"] = df_dtobito["DTOBITO"].dt.tz_localize('America/Argentina/Catamarca')
 
     scales = alt.selection_interval(bind='scales')
-    graph = alt.Chart(df_dtobito, title="Quantidade de suicídios por mês (2008-2018)").mark_line(point=True).encode(
+    graph = alt.Chart(df_dtobito, title="Quantidade de suicídios por mês no Brasil (2008-2018)").mark_line(point=True).encode(
         x=alt.X('utcyearmonth(DTOBITO)', title='Mês/Ano'),
         y=alt.Y('count()', title='Quantidade'),
         tooltip=[alt.Tooltip('utcyearmonth(DTOBITO)', title='Mês/Ano'), alt.Tooltip('count()', title='Quantidade')]

@@ -147,47 +147,25 @@ def run_model(model, satscan):
     suffix = "satscan" if satscan else "highest_rates"
     filename = ""
     classifier = None
-    sc_scaler = joblib.load("Models/sav/sc_x_{}.save".format(suffix))
     mm_scaler = joblib.load("Models/sav/mm_x_{}.save".format(suffix))
     if model != "Selecione um modelo":
         if model == "Naive Bayes":
             classifier = pickle.load(open("Models/sav/naive_bayes_{}.sav".format(suffix), 'rb'))
             X_test  = X_test.drop(columns=list(dict_uf_cod.values()))
         elif model == "Regressão Logística":
-            options_scaler = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler)
-            if scaler == "Standard":
-                X_train = sc_scaler.transform(X_train)
-                X_test = sc_scaler.transform(X_test) 
-                classifier = pickle.load(open("Models/sav/logistic_regression_{}_sc.sav".format(suffix), 'rb'))
-            else:
-                X_train = mm_scaler.transform(X_train)
-                X_test = mm_scaler.transform(X_test) 
-                classifier = pickle.load(open("Models/sav/logistic_regression_{}_mm.sav".format(suffix), 'rb'))
+            X_train = mm_scaler.transform(X_train)
+            X_test = mm_scaler.transform(X_test) 
+            classifier = pickle.load(open("Models/sav/logistic_regression_{}_mm.sav".format(suffix), 'rb'))
         elif model == "Random Forest":
             classifier = pickle.load(open("Models/sav/random_forest_{}.sav".format(suffix), 'rb'))
         elif model == "SVC (Linear)":
-            options_scaler = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler)
-            if scaler == "Standard":
-                X_train = sc_scaler.transform(X_train)
-                X_test = sc_scaler.transform(X_test)
-                classifier = pickle.load(open("Models/sav/svm_linear_{}_sc.sav".format(suffix), 'rb')) 
-            else:
-                X_train = mm_scaler.transform(X_train)
-                X_test = mm_scaler.transform(X_test) 
-                classifier = pickle.load(open("Models/sav/svm_linear_{}_mm.sav".format(suffix), 'rb'))
+            X_train = mm_scaler.transform(X_train)
+            X_test = mm_scaler.transform(X_test) 
+            classifier = pickle.load(open("Models/sav/svm_linear_{}_mm.sav".format(suffix), 'rb'))
         elif model == "SVC (RBF)":
-            options_scaler = np.append(['MinMax'], ["Standard"])
-            scaler = st.selectbox('Selecione um scaler:', options_scaler)
-            if scaler == "Standard":
-                X_train = sc_scaler.transform(X_train)
-                X_test = sc_scaler.transform(X_test) 
-                classifier = pickle.load(open("Models/sav/svm_rbf_{}_sc.sav".format(suffix), 'rb'))
-            else:
-                X_train = mm_scaler.transform(X_train)
-                X_test = mm_scaler.transform(X_test) 
-                classifier = pickle.load(open("Models/sav/svm_rbf_{}_mm.sav".format(suffix), 'rb'))
+            X_train = mm_scaler.transform(X_train)
+            X_test = mm_scaler.transform(X_test) 
+            classifier = pickle.load(open("Models/sav/svm_rbf_{}_mm.sav".format(suffix), 'rb'))
         else:
             return
     if classifier != None:
@@ -225,16 +203,6 @@ def get_cadmun(test_df):
         
 def get_shap_analysis(model, classifier, X_train, X_test, satscan=False):
     test_df = get_test_df(satscan=satscan)
-    # print(column_names)
-    # if model == "SVC (Linear)" or model == "Regressão Logística":
-    #     explainer = shap.LinearExplainer(classifier, X_train, feature_perturbation="interventional")
-    #     shap_values = explainer.shap_values(X_test)
-    #     st_shap(shap.summary_plot(shap_values, X_test, feature_names=column_names), 400)
-    # el
-    # if model == "Random Forest":
-    #     explainer = shap.TreeExplainer(classifier)
-    #     shap_values = explainer.shap_values(X_test)
-    #     st_shap(shap.summary_plot(shap_values[1], X_test, feature_names=column_names, show=False), 400)
     st.markdown("""
         ### Análise SHAP
         A biblioteca SHAP permite uma melhor compreensão dos atributos que mais impactaram a decisão do classificador.

@@ -17,7 +17,7 @@ st.markdown(
 )
 st.sidebar.title("Dashboard")
 dashboard = st.sidebar.radio("Escolha o painel que deseja ver:",("Homepage", "Análise Exploratória de Dados", 
-	"Análise de Correlação de Spearman", "Análise de Autocorrelação Espacial", "Determinação de Clusters de Suicídio", "Modelos Preditivos (Regressão)", "Modelos Preditivos (Classificação)"))
+	"Análise de Correlação de Spearman", "Análise de Autocorrelação Espacial", "Determinação de Clusters de Suicídio", "Modelos Preditivos de Regressão", "Modelos Preditivos de Classificação"))
   
 if dashboard == "Homepage":
     present_homepage()
@@ -29,7 +29,7 @@ elif dashboard == "Determinação de Clusters de Suicídio":
 	satscan_vw.present_satscan()
 elif dashboard == "Análise de Correlação de Spearman":
     spearman_vw.present_spearman()
-elif dashboard == "Modelos Preditivos (Regressão)":
+elif dashboard == "Modelos Preditivos de Regressão":
 	regression_vw.present_regression_model()
 else:
 	classification_vw.present_classification_model()

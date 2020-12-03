@@ -3,7 +3,7 @@ import streamlit as st
 def present_homepage():
     st.markdown(
         """
-        # Variáveis do DATASUS que mais impactam a saúde mental das cidades
+        # O impacto da incidência de doenças sobre a taxa de suicídio em cidades brasileiras: um estudo com variáveis do DATASUS
         """
 
         """
@@ -11,8 +11,9 @@ def present_homepage():
         """
 
         """
-        O objetivo deste projeto de TCC é descobrir quais são as variáveis do DATASUS que têm maior impacto na 
-        saúde mental das cidades, com foco principalmente na questão do suicídio nos municípios brasileiros.
+        O objetivo do projeto é determinar a relação entre a incidência de determinadas doenças e 
+        a ocorrência de suicídios nas cidades brasileiras, a partir de dados de internações extraídos do DATASUS.
+
         """
 
         """
