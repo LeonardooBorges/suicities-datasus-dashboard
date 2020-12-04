@@ -16,7 +16,7 @@ def present_regression_model():
     """ 
   )
 
-  options = np.append(['Selecione um modelo'], ["Regressão Linear", "ElasticNet", "SVR"])            
+  options = np.append(['Selecione um modelo'], ["Regressão Linear", "ElasticNet", "Random Forest", "SVR"])            
   model = st.selectbox('Selecione um modelo:', options)
 
   dt.run_model(model)
