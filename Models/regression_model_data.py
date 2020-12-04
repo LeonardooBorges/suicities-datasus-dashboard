@@ -106,26 +106,30 @@ def run_model(model):
     mm_scaler_y = joblib.load("Models/sav/mm_y_regression.save")
     filename = ""
     regressor = None
+    X_test = X_test[features]
 
     if model != "Selecione um modelo":
         if model == "Regressão Linear":
-            X_test = X_test[features]
             X_test_transf = pd.DataFrame(mm_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
             regressor = pickle.load(open("Models/sav/linear_regression.sav", 'rb'))
             y_pred = regressor.predict(X_test_transf)
             y_pred = mm_scaler_y.inverse_transform(y_pred.reshape(-1,1))
             y_pred = y_pred.ravel()
         elif model == "ElasticNet":
-            X_test = X_test[features]
             X_test_transf = pd.DataFrame(mm_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
             regressor = pickle.load(open("Models/sav/elastic_net_regression.sav", 'rb'))
             y_pred = regressor.predict(X_test_transf)
             y_pred = mm_scaler_y.inverse_transform(y_pred.reshape(-1,1))
             y_pred = y_pred.ravel()
         elif model == "Random Forest":
-            st.write("Not implemented")
+            zipFileName = 'Models/sav/random_forest_regression.7z'
+            if not os.path.isfile('Models/sav/random_forest_regression.sav'):
+                print('Unzipping random_forest_regression file')
+                with py7zr.SevenZipFile(zipFileName, 'r') as archive:
+                    archive.extractall("Models/sav/")
+            regressor = pickle.load(open("Models/sav/random_forest_regression.sav", 'rb'))
+            y_pred = regressor.predict(X_test)
         elif model == "SVR":
-            X_test = X_test[features]
             X_test_transf = pd.DataFrame(mm_scaler_x.transform(X_test), index=X_test.index, columns=X_test.columns)
             regressor = pickle.load(open("Models/sav/svr_mm_regression.sav", 'rb'))
             y_pred = regressor.predict(X_test_transf)
