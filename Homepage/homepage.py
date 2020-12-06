@@ -34,6 +34,9 @@ def present_homepage():
         - **Determinação de Clusters de Suicídio:** Clusters de suicídio identificados pelo software *SatScan*.
 
         - **Modelos Preditivos:** Modelos de classificação e regressão para a previsão de informações sobre as taxas de suicídio nos municípios brasileiros.
+        
+        - **Conclusões:** Ranqueamento final das doenças mais associadas à ocorrência de suicidio, a partir das análises anteriores.
+        
         """
 
         """
