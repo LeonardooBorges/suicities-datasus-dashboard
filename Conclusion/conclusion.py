@@ -16,7 +16,7 @@ def present_conclusion():
 
         - Foram resgatadas as listas geradas:
             - Pela análise de Correlação de Spearman;
-            - Pelo cálculo do Índice de \textit{Bivariate Moran's I};
+            - Pelo cálculo do Índice de *Bivariate Moran's I*;
             - Pelas análises SHAP dos modelos de Classificação e Regressão (utilizando apenas um classificador/regressor por modelo);
         - Foi aplicado um filtro para remover os atributos que não correspondem a doenças:
             - *Previous* (taxa de suicídios do ano anterior), no caso do modelo de Regressão; 
