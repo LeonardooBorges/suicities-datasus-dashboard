@@ -49,7 +49,7 @@ def plot_linha_ii():
         y=alt.Y('CIDS', title="CID da Linha II", sort='-x'),
         tooltip=[alt.Tooltip('CIDS', title='CID da Linha II'), alt.Tooltip('COUNT', title='Quantidade')]
     )
-    st.altair_chart((graph).properties(width=700, height=410))
+    st.altair_chart((graph).properties(width=700, height=410), use_container_width=True)
 
 
 def get_causabas():
