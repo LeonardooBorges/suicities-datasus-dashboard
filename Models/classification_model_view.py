@@ -15,7 +15,7 @@ def present_classification_model():
     """
 
   )
-  analysis = st.radio("Escolha um modelo:",('Mediana Nacional', 'Clusters do SatScan'))
+  analysis = st.radio("Escolha um modelo:",('Mediana Nacional', 'Clusters do SaTScan'))
   if analysis == "Mediana Nacional":
     st.markdown(
       """
@@ -28,9 +28,9 @@ def present_classification_model():
   else:
     st.markdown(
       """
-      ## Modelo de Clusters do SatScan
+      ## Modelo de Clusters do SaTScan
 
-      Este modelo utiliza as saídas do software de clusterização *SatScan* para **determinar municípios pertencentes a 
+      Este modelo utiliza as saídas do software de clusterização *SaTScan* para **determinar municípios pertencentes a 
       clusters de alto risco de suicídio**. Tais municípios são classificados como 1, e os municípios restantes são classificados como 0.
       """
     )

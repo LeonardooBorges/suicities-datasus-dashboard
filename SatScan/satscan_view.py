@@ -5,10 +5,10 @@ import numpy as np
 def present_satscan():
 	st.markdown(
 		"""
-		# SatScan
+		# SaTScan
 		"""
 		"""
-		O *SatScan* é um software gratuito amplamente utilizado para identificar *clusters* espaciais de 
+		O *SaTScan* é um software gratuito amplamente utilizado para identificar *clusters* espaciais de 
 		doenças e verificar se eles são estatisticamente significativos.
 
 		Neste estudo, foi utilizada a ferramenta de varredura espacial, que posiciona no mapa janelas circulares 

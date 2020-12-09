@@ -21,7 +21,7 @@ def present_homepage():
         """
 
         """
-        Este Dashboard é constituído de quatro painéis distintos, que sumarizam dados da análise do suicídio nos municípios brasileiros:
+        Este Dashboard é constituído de sete painéis distintos, além do atual, que sumarizam dados da análise do suicídio nos municípios brasileiros:
         """
 
         """
@@ -31,9 +31,11 @@ def present_homepage():
 
         - **Análise de Correlação de Spearman:** Correlação de Spearman entre as taxas de doenças e a ocorrência de suicídios.
 
-        - **Determinação de Clusters de Suicídio:** Clusters de suicídio identificados pelo software *SatScan*.
+        - **Determinação de Clusters de Suicídio:** Clusters de suicídio identificados pelo software *SaTScan*.
 
-        - **Modelos Preditivos:** Modelos de classificação e regressão para a previsão de informações sobre as taxas de suicídio nos municípios brasileiros.
+        - **Modelos Preditivos de Regressão:** Modelos de regressão para a previsão da evolução das taxas de suicídio nos municípios brasileiros.
+        
+        - **Modelos Preditivos de Classificação:** Modelos de classificação para a previsão de informações sobre as taxas de suicídio nos municípios brasileiros.
         
         - **Conclusões:** Ranqueamento final das doenças mais associadas à ocorrência de suicidio, a partir das análises anteriores.
         
