@@ -57,42 +57,6 @@ def get_train_data(train_df, satscan=False):
         y_train = train_df["TARGET"]
     return X_train, y_train
 
-def plot_map(y_test, y_pred, test_df, model):
-    zipFileName = 'Maps/BRMUE250GC_SIR.7z'
-    if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
-        print('Unzipping BRMUE250GC_SIR files')
-        with py7zr.SevenZipFile(zipFileName, 'r') as archive:
-            archive.extractall("Maps/")
-    
-    gd = gpd.read_file('Maps/BRMUE250GC_SIR.shp')
-    
-    mun_risk_ids_pred = test_df[y_pred == 1]['MUNCOD'].astype(int).tolist()
-    mun_risk_ids_true = test_df[y_test == 1]['MUNCOD'].astype(int).tolist()
-    mun_risk_ids_1_correct = [x for x in mun_risk_ids_pred if x in mun_risk_ids_true]
-
-    mun_risk_ids_pred_0 = test_df[y_pred == 0]['MUNCOD'].astype(int).tolist()
-    mun_risk_ids_true_0 = test_df[y_test == 0]['MUNCOD'].astype(int).tolist()
-    mun_risk_ids_0_correct = [x for x in mun_risk_ids_pred_0 if x in mun_risk_ids_true_0]
-
-    mun_risk_ids = mun_risk_ids_1_correct + mun_risk_ids_0_correct
-    mun_risk_ids_wrong = [x for x in mun_risk_ids_pred if x not in mun_risk_ids_true] + [x for x in mun_risk_ids_true if x not in mun_risk_ids_pred]
-
-
-    fig, ax = plt.subplots(figsize=(15,15))
-    gd.plot(ax=ax, color="white", edgecolor='black')
-    gd_risk = gd[remove_last_digit(gd['CD_GEOCMU']).apply(lambda x: x in mun_risk_ids)]
-    plot_risk = gd_risk.plot(ax=ax, color="blue")
-
-    gd_risk_wrong = gd[remove_last_digit(gd['CD_GEOCMU']).apply(lambda x: x in mun_risk_ids_wrong)]
-    plot_risk_wrong = gd_risk_wrong.plot(ax=ax, color="red")
-
-    blue_patch = mpatches.Patch(color='blue', label='Previsão Correta')
-    red_patch = mpatches.Patch(color='red', label='Previsão Incorreta')
-    plt.title("Previsões do modelo de " + model + " para o ano de 2018")
-    plt.legend(handles=[red_patch,blue_patch])
-    plt.axis('off')
-    st.pyplot(fig)
-
 def st_shap(plot, height=None):
     shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
     components.html(shap_html, height=height)
@@ -128,7 +92,7 @@ def calculate_metrics(y_test, y_pred):
             - **F1-Score**: é uma combinação da precisão com a revocação, sendo definido pela seguinte fórmula: $F1-Score = 2*Precisao*Revocacao/(Precisão + Revocação)$
         """)
     
-def get_predictions_2018(y_test, y_pred, test_df, model):
+def get_predictions_2018(model, satscan):
     st.markdown("""
             ### Previsões do Modelo
     """)
@@ -137,7 +101,20 @@ def get_predictions_2018(y_test, y_pred, test_df, model):
     '<p> O mapa abaixo mostra o resultado das previsões do modelo para o ano de 2018.</p>'
     'Em <span style="color:red;"><b>vermelho</b></span> são destacados os municípios para os quais a previsão do modelo foi <b>incorreta</b>, e em <span style="color:blue;"><b>azul</b></span>, aqueles cuja previsão foi <b>correta</b>.', unsafe_allow_html=True
     )
-    plot_map(y_test, y_pred, test_df, model)
+    if satscan:
+        prefix = "./Models/img/satscan_"
+    else:
+        prefix = "./Models/img/highest_rates_"
+    if model == "Naive Bayes":
+        st.image(prefix + "naive_bayes.png", use_column_width=True)
+    elif model == "Regressão Logística":
+        st.image(prefix + "logistic_regression.png", use_column_width=True)
+    elif model == "Random Forest":
+        st.image(prefix + "random_forest.png", use_column_width=True)
+    elif model == "SVC (Linear)":
+        st.image(prefix + "svc_linear.png", use_column_width=True)
+    elif model == "SVC (RBF)":
+        st.image(prefix + "svc_rbf.png", use_column_width=True)
 
 def run_model(model, satscan):
     train_df = get_train_df(satscan=satscan)
@@ -178,7 +155,7 @@ def run_model(model, satscan):
             elif analysis == "Métricas do modelo":
                 calculate_metrics(y_test, y_pred)
             else:
-                get_predictions_2018(y_test, y_pred, test_df, model)
+                get_predictions_2018(model, satscan)
         else:
             analysis = st.radio("Visualizar resultados:",('Matriz de Confusão', 'Métricas do modelo', 'Previsões para 2018', 'Análise SHAP'))
             if analysis == "Matriz de Confusão":
@@ -186,7 +163,7 @@ def run_model(model, satscan):
             elif analysis == "Métricas do modelo":
                 calculate_metrics(y_test, y_pred)
             elif analysis == "Previsões para 2018":
-                get_predictions_2018(y_test, y_pred, test_df, model)
+                get_predictions_2018(model, satscan)
             else:
                 get_shap_analysis(model, classifier, X_train, X_test, satscan=satscan)
 

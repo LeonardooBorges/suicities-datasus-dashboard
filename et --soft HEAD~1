@@ -1,0 +1,131 @@
+[33mcommit 507d6a33b9191f42eae052968b6cb9c09c1de17c[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Thu Dec 3 01:26:21 2020 -0300
+
+    Atualiza homepage
+
+[33mcommit c05c10ddfdfdba7cd5db00bde76ef0eac5c045e7[m[33m ([m[1;32msvr-problem[m[33m)[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Wed Dec 2 19:40:48 2020 -0300
+
+    Adicionando modelos de regressao
+
+[33mcommit 7041502198d2275d6990db453b6c24b939c6e7a5[m[33m ([m[1;31morigin/svr-problem[m[33m)[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Fri Nov 27 23:34:25 2020 -0300
+
+    Updated regression models
+
+[33mcommit e9b7d99ab106555860134bbf6b0fab16a87d67ea[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Thu Nov 26 23:48:04 2020 -0300
+
+    Updated naive bayes
+
+[33mcommit c29d5a19e23283560f28a512243431f849c4d051[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Tue Nov 24 09:17:01 2020 -0300
+
+    CSS changes to sidebar
+
+[33mcommit b11829bb54c5a74deec1eb0a57b948ddd83f9f9f[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Tue Nov 24 08:55:25 2020 -0300
+
+    Changed sidebar to radio
+
+[33mcommit 0b65d7ced16c51ae42e81d6c772fdc1f8dd09833[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Tue Nov 24 08:08:02 2020 -0300
+
+    Added shap
+
+[33mcommit 50d99642e1a31b77cb7528c06d342abc2b70a963[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Mon Nov 23 23:59:59 2020 -0300
+
+    Updated models
+
+[33mcommit f5fb446194b5ba8c2e05450d426b6a60f3580d5d[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Mon Nov 23 14:52:14 2020 -0300
+
+    Updated models with scalers
+
+[33mcommit 0b2c11026e5f62c898fb9f882659052b71958771[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Sat Nov 21 23:44:44 2020 -0300
+
+    Updated PySal and EDA dashboards
+
+[33mcommit 116a9f3b159299c9de91439d89543cafa35329b5[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Sat Nov 21 12:43:27 2020 -0300
+
+    Updated requirements
+
+[33mcommit a74c4a7dbed8975d1ab4d5199798cc2f450e1aae[m
+Author: pypas <pypasofar@gmail.com>
+Date:   Sat Nov 21 12:18:08 2020 -0300
+
+    Add models dashboards
+
+[33mcommit 03a9f0eca6fed3e69416a9e4c7344c4579e7069c[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 20:02:58 2020 -0300
+
+    Fix if ident
+
+[33mcommit e2d45c71db68409eee67356b9263f2a9c77d38d9[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 19:44:58 2020 -0300
+
+    Unzip data.7z
+
+[33mcommit d60fbda1a8e485aac8aca1feed31f7096d238c52[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 19:28:20 2020 -0300
+
+    Try 7z instead of zip
+
+[33mcommit 7e32a6620e34ef4fd7f5b01c843fdab19530d769[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 18:52:46 2020 -0300
+
+    Add zip file compatible linux
+
+[33mcommit 58f576a6e100087c524da55f05d45eeaac131d99[m
+Author: LeonardooBorges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 18:29:35 2020 -0300
+
+    remove corrupted zip
+
+[33mcommit 223a30d27f47154890766f11f7727f10811751b6[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 17:38:21 2020 -0300
+
+    Byte instead of str
+
+[33mcommit 394b400cc72f9074df9b93953437554896aaf969[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 17:34:49 2020 -0300
+
+    Trying to fix bad zip file
+
+[33mcommit 6dc8fbb3426733835cffeddfee4c1d57e9e8df66[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 17:09:17 2020 -0300
+
+    Unzip map files if not found
+
+[33mcommit 8355f6a08d0059eb714b8f4612dc296409573c9a[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 16:35:45 2020 -0300
+
+    Add br_municipios.zip and gitattributes
+
+[33mcommit 9da86e9b05739b654f62707c2f23230b1d2d763d[m
+Author: Leonardooborges <leonardooborges97@gmail.com>
+Date:   Sat Nov 14 16:31:11 2020 -0300
+
+    Add files from dashboard

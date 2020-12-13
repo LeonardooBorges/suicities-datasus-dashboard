@@ -143,7 +143,7 @@ def run_model(model):
             params = regressor.get_params()
             params_df = pd.DataFrame(params.items(), columns=['Parâmetro', 'Valor'])
             st.write(params_df)
-        analysis = st.radio("Visualizar resultados:",('Métricas do modelo', 'Previsões para 2018',))
+        analysis = st.radio("Visualizar resultados:",('Métricas do modelo', 'Previsões para 2018'))
         if analysis == "Métricas do modelo":
             calculate_metrics(y_test, y_pred, X_test)
         elif analysis == "Previsões para 2018":

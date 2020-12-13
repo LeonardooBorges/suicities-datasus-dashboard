@@ -30,7 +30,7 @@ def plot_disease_vs_suicide(disease):
     regression_line = base.transform_regression(
              "Total", "SUICIDE", method="poly", order=1).mark_line()
 
-    st.altair_chart(alt.layer(base, regression_line).properties(width=700, height=410))
+    st.altair_chart(alt.layer(base, regression_line).properties(width=700, height=410), use_container_width=True)
 
 def get_diseases_select_names():
     global mapper

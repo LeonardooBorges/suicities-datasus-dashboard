@@ -14,8 +14,6 @@ import os
 from EDA import dictionaries as dictionaries
 
 suicide_df = pd.read_csv("./EDA/suicide_final.csv", index_col=0)
-suicide_muncod_df = pd.read_csv("./EDA/suicide_rates_08_18.csv", index_col=0)
-suicideocorr_muncod_df = pd.read_csv("./EDA/suicideocorr_rates_08_18.csv", index_col=0)
 
 def get_suicide_data():
     return suicide_df
@@ -93,64 +91,14 @@ def plot_dtobito():
     st.altair_chart((graph).configure_view(strokeOpacity=0).configure_title(fontSize=12).properties(width=700, height=410))
 
 def plot_codmunres():
-    zipFileName = 'Maps/BRMUE250GC_SIR.7z'
-    if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
-        print('Unzipping BRMUE250GC_SIR files')
-        with py7zr.SevenZipFile(zipFileName, 'r') as archive:
-            archive.extractall("Maps/")
-    
-    gdf = gpd.read_file('Maps/BRMUE250GC_SIR.shp')
-    
-    cadmun = pd.read_csv('./EDA/CADMUN.csv')
-    cadmun = cadmun[["MUNCOD", "MUNCODDV"]]
-  
-    gdf["CD_GEOCMU"] = gdf["CD_GEOCMU"].astype(int)
-    gdf_city = pd.merge(gdf, cadmun, left_on="CD_GEOCMU", right_on="MUNCODDV", how="left")
-
     options = np.append(['Todos'], [x for x in range(2008,2019)])
     ano = st.selectbox('Selecione um ano:', options)
-    result = pd.merge(gdf_city, suicide_muncod_df, left_on="MUNCOD", right_on="MUNCOD", how="left")
-    if ano != "Todos":
-        column = "RATE_" + str(ano)[-2:]
-    else:
-        column = "AVG"
-    result = result[["NM_MUNICIP", "CD_GEOCMU", "geometry", column]]
-    fig, ax = plt.subplots(figsize = (15,15))
-    result.plot(column=column, ax=ax, legend=True,cmap='RdPu', scheme='user_defined', 
-        classification_kwds={'bins':[2, 5, 10, 50]},
-        missing_kwds={'color': 'lightgrey', "label": "Valores ausentes"})
-    plt.title('Taxa de suicídios no Brasil em ' + ano+ ' (por 100 mil habitantes)',fontsize=25)
-    st.pyplot(fig)
+    st.image("./EDA/img/codmunres_" + ano + ".png",use_column_width = True)
 
 def plot_codmunocorr():
-    zipFileName = 'Maps/BRMUE250GC_SIR.7z'
-    if not os.path.isfile('Maps/BRMUE250GC_SIR.shp'):
-        print('Unzipping BRMUE250GC_SIR files')
-        with py7zr.SevenZipFile(zipFileName, 'r') as archive:
-            archive.extractall("Maps/")
-    
-    gdf = gpd.read_file('Maps/BRMUE250GC_SIR.shp')
-    
-    cadmun = pd.read_csv('./EDA/CADMUN.csv')
-    cadmun = cadmun[["MUNCOD", "MUNCODDV"]]
-  
-    gdf["CD_GEOCMU"] = gdf["CD_GEOCMU"].astype(int)
-    gdf_city = pd.merge(gdf, cadmun, left_on="CD_GEOCMU", right_on="MUNCODDV", how="left")
-
     options = np.append(['Todos'], [x for x in range(2008,2019)])
     ano = st.selectbox('Selecione um ano:', options)
-    result = pd.merge(gdf_city, suicideocorr_muncod_df, left_on="MUNCOD", right_on="MUNCOD", how="left")
-    if ano != "Todos":
-        column = "RATE_" + str(ano)[-2:]
-    else:
-        column = "AVG"
-    result = result[["NM_MUNICIP", "CD_GEOCMU", "geometry", column]]
-    fig, ax = plt.subplots(figsize = (15,15))
-    result.plot(column=column, ax=ax, legend=True,cmap='RdPu', scheme='user_defined', 
-        classification_kwds={'bins':[2, 5, 10, 50]},
-        missing_kwds={'color': 'lightgrey', "label": "Valores ausentes"})
-    plt.title('Taxa de suicídios no Brasil em ' + ano+ ' (por 100 mil habitantes)',fontsize=25)
-    st.pyplot(fig)
+    st.image("./EDA/img/comunocorr_" + ano + ".png",use_column_width = True)
 
 def plot_idade():
     df_idade = suicide_df[suicide_df["IDADE"] > 0][["IDADE"]]
